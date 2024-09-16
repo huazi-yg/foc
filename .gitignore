@@ -50,3 +50,13 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+drv8301/MDK-ARM/DebugConfig/drv8301_STM32G474RETx.dbgconf
+drv8301/MDK-ARM/EventRecorderStub.scvd
+drv8301/MDK-ARM/drv8301/ExtDll.iex
+drv8301/MDK-ARM/drv8301/drv8301_drv8301.dep
+drv8301/MDK-ARM/drv8301/drv8301.sct
+drv8301/MDK-ARM/drv8301/drv8301.lnp
+drv8301/MDK-ARM/drv8301/drv8301.build_log.htm
+drv8301/MDK-ARM/drv8301/drv8301.htm
+drv8301/MDK-ARM/drv8301/drv8301.axf
+drv8301/MDK-ARM/drv8301.uvguix.huazi
