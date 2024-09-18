@@ -59,7 +59,7 @@ void GetMotor_Speed(Foc_Controller *motor)
         temp_speed = last_speed;
 
     last_mangle = mangle;
-	motor->now_speed = 0.2f*temp_speed + 0.8*last_speed;
+	motor->now_speed = 0.100000f*temp_speed + 0.900000f*last_speed;
     last_speed = temp_speed;
 	
 }
@@ -84,8 +84,7 @@ void Read_Angle(Foc_Controller *motor)
     static float angle_el;
 
     data = AS5047_read(ANGLEUNC);
-    angle=((float)data*360.0f)/16384.0f-motor->offset_electrical_angle;  // 转换为角度
-
+    angle=((float)(data - motor->offset_electrical_angle)*360.0f)/16384.0f;  // 转换为角度
     // 判别角度范围，调整至0-360°
     while(angle<0) 
         angle+=360.0f;
@@ -98,5 +97,5 @@ void Read_Angle(Foc_Controller *motor)
     
     motor->mechanical_angle=angle;
 //    motor->=angle_el;
-    motor->electrical_angle = -angle_el*(float)FOC_EANGLE_TO_ERADIN; // 转换为弧度 rad
+    motor->electrical_angle = angle_el*(float)FOC_EANGLE_TO_ERADIN; // 转换为弧度 rad
 }

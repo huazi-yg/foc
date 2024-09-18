@@ -56,6 +56,10 @@ void Struct_Init(Foc_Controller * struct_ptr)
 	
 	struct_ptr->Iq_pid.kp = 0.457f;
 	struct_ptr->Iq_pid.ki = 0.03800f;
+	struct_ptr->Speed_pid.kp = 0.008f;
+	struct_ptr->Speed_pid.ki = 0.0001f;
+	
+	struct_ptr->target_speed = 1000;
 }
 
 /*!

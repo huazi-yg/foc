@@ -29,19 +29,20 @@ extern Foc_Controller Controller;
 
 void speed_pid(Foc_Controller * struct_ptr)
 {
-	struct_ptr->Speed_pid.kp = 0.8f;
-	struct_ptr->Speed_pid.ki = 0.0001f;
+	struct_ptr->Speed_pid.kp = 0.005f;
+	struct_ptr->Speed_pid.ki = 0.0025f;
 	
 	struct_ptr->Speed_pid.err = struct_ptr->target_speed - struct_ptr->now_speed;
 	
 	struct_ptr->Speed_pid.err_i+=struct_ptr->Speed_pid.err;
-	if(struct_ptr->Speed_pid.err_i>5.0)struct_ptr->Speed_pid.err_i=5.0;
+	if(struct_ptr->Speed_pid.err_i>5000.0)struct_ptr->Speed_pid.err_i=5000.0;
+	else if(struct_ptr->Speed_pid.err_i<-5000.0)struct_ptr->Speed_pid.err_i=-5000.0;
 	
 	struct_ptr->desire_i_q = struct_ptr->Speed_pid.kp*struct_ptr->Speed_pid.err + struct_ptr->Speed_pid.ki * struct_ptr->Speed_pid.err_i;
 	
-	if(struct_ptr->desire_i_q >= 10.0)	struct_ptr->desire_i_q=10.0;
-	else if(struct_ptr->desire_i_q <= -10.0f)   struct_ptr->desire_i_q = -10.0f;
-//	struct_ptr->desire_i_q = -2;
+	if(struct_ptr->desire_i_q >= 24.0)	struct_ptr->desire_i_q=24.0;
+	else if(struct_ptr->desire_i_q <= -24.0f)   struct_ptr->desire_i_q = -24.0f;
+//	struct_ptr->desire_i_q = 24;
 
 }
 
@@ -108,12 +109,14 @@ void HAL_IncTick(void)
 
 	
 	
-	if(1 == key_flag)
-	{
-		//speed
-		GetMotor_Speed(&Controller);
-		speed_pid(&Controller);
-	}
+//	if(1 == key_flag)
+//	{
+//		Controller.target_positon = 180;
+//	}
+//	else
+//	{
+//		Controller.target_positon = 0;
+//	}
 }
 struct V3
 {
@@ -164,6 +167,8 @@ bool get_current_offset_flag = true;
 
 Foc_Controller Controller;
 
+uint8_t speed_tick = 0;
+uint8_t pos_tick = 0;
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
 	
@@ -174,11 +179,33 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 	}
 	else
 	{
+		speed_tick++;
+		if(speed_tick >= 15)
+		{
+			speed_tick = 0;
+			if(key_flag == 1)
+			{
+			GetMotor_Speed(&Controller);
+			}
+		}
+		
+		pos_tick++;
+		if(pos_tick >= 30)
+		{
+			pos_tick = 0;
+//			position_pid(&Controller);
+			if(key_flag == 1)
+			{
+			speed_pid(&Controller);
+			}
+		}
+		
 		Cal_Current();
-		if(1 == key_flag)
+		
+		//去掉按键后，直接运行电流环会出现跑不起来的问题，大概率是电流环积分导致的
+		if(key_flag == 1)
 		{
 			run_close(&Controller);
-//				run_open(&Controller);
 		}
 	}
 }
@@ -193,7 +220,7 @@ void run_open(Foc_Controller * struct_ptr)
 void run_close(Foc_Controller * struct_ptr)
 {
 	struct_ptr->desire_i_d = 0.0f;
-	struct_ptr->desire_i_q = 1.0f;
+//	struct_ptr->desire_i_q = 2.0f;
 	clark(struct_ptr);
 	park(struct_ptr);
 	compute_pid(struct_ptr);
@@ -253,7 +280,5 @@ void main_entery(void)
 	while(1)
 	{
 		Read_Angle(&Controller);
-//		GetMotor_Speed(&Controller);
-//		HAL_Delay(0);
 	}
 }
