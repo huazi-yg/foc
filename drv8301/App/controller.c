@@ -29,8 +29,8 @@ extern Foc_Controller Controller;
 
 void speed_pid(Foc_Controller * struct_ptr)
 {
-	struct_ptr->Speed_pid.kp = 0.005f;
-	struct_ptr->Speed_pid.ki = 0.0025f;
+	struct_ptr->Speed_pid.kp = 0.015f;
+	struct_ptr->Speed_pid.ki = 0.00025f;
 	
 	struct_ptr->Speed_pid.err = struct_ptr->target_speed - struct_ptr->now_speed;
 	
@@ -40,8 +40,8 @@ void speed_pid(Foc_Controller * struct_ptr)
 	
 	struct_ptr->desire_i_q = struct_ptr->Speed_pid.kp*struct_ptr->Speed_pid.err + struct_ptr->Speed_pid.ki * struct_ptr->Speed_pid.err_i;
 	
-	if(struct_ptr->desire_i_q >= 24.0)	struct_ptr->desire_i_q=24.0;
-	else if(struct_ptr->desire_i_q <= -24.0f)   struct_ptr->desire_i_q = -24.0f;
+	if(struct_ptr->desire_i_q >= 100.0)	struct_ptr->desire_i_q=100.0;
+	else if(struct_ptr->desire_i_q <= -100.0f)   struct_ptr->desire_i_q = -100.0f;
 //	struct_ptr->desire_i_q = 24;
 
 }
@@ -180,7 +180,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 	else
 	{
 		speed_tick++;
-		if(speed_tick >= 15)
+		if(speed_tick >= 30)
 		{
 			speed_tick = 0;
 			if(key_flag == 1)
@@ -190,7 +190,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 		}
 		
 		pos_tick++;
-		if(pos_tick >= 30)
+		if(pos_tick >= 45)
 		{
 			pos_tick = 0;
 //			position_pid(&Controller);
@@ -220,7 +220,7 @@ void run_open(Foc_Controller * struct_ptr)
 void run_close(Foc_Controller * struct_ptr)
 {
 	struct_ptr->desire_i_d = 0.0f;
-//	struct_ptr->desire_i_q = 2.0f;
+//	struct_ptr->desire_i_q = 1.0f;
 	clark(struct_ptr);
 	park(struct_ptr);
 	compute_pid(struct_ptr);

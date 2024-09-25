@@ -121,8 +121,8 @@ void compute_pid(Foc_Controller * struct_ptr)
 	
 	struct_ptr->u_d = struct_ptr->Id_pid.kp*struct_ptr->Id_pid.err + struct_ptr->Id_pid.ki * struct_ptr->Id_pid.err_i;
 	
-	if(struct_ptr->u_d>24.0)			  struct_ptr->u_d=24.0;
-	else if(struct_ptr->u_d<=-24.0f)   struct_ptr->u_d = -24.0f;
+	if(struct_ptr->u_d>191.0)			  struct_ptr->u_d=191.0;
+	else if(struct_ptr->u_d<=-191.0f)   struct_ptr->u_d = -191.0f;
 	
 	struct_ptr->Iq_pid.err = struct_ptr->desire_i_q - struct_ptr->i_q;
 	
@@ -132,8 +132,8 @@ void compute_pid(Foc_Controller * struct_ptr)
 	
 	struct_ptr->u_q = struct_ptr->Iq_pid.kp*struct_ptr->Iq_pid.err + struct_ptr->Iq_pid.ki * struct_ptr->Iq_pid.err_i;
 		
-	if(struct_ptr->u_q>24.0)           struct_ptr->u_q=24.0;
-	else if(struct_ptr->u_q<=-24.0f)   struct_ptr->u_q = -24.0f;
+	if(struct_ptr->u_q>191.0)           struct_ptr->u_q=191.0;
+	else if(struct_ptr->u_q<=-191.0f)   struct_ptr->u_q = -191.0f;
 
 	
 }

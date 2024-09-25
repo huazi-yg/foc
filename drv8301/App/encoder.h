@@ -37,7 +37,7 @@ void GetMotor_Speed(Foc_Controller *motor);
 float Get_Electrical_Angle();
 uint16_t Read_Register(uint16_t addr);
 uint16_t Parity_bit_Calculate(uint16_t data_2_cal);
-uint16_t AS5047_read(uint16_t add);
+uint16_t AS5047_read(uint16_t add,uint8_t *error_flag);
 
 
 #endif

@@ -30,10 +30,20 @@ void Align_Alectrical_Angle(Foc_Controller* struct_ptr)
 	HAL_Delay(500);
 	//2.读取角度
 	uint16_t temp_angle;
+	uint32_t temp_data ;
+	uint8_t error = 0;
+
+   
     for (uint8_t i = 0; i < 10; i++) {
-//        Read_Angle(struct_ptr);
-		temp_angle = AS5047_read(ANGLEUNC);
-//        printf("1:float%f\r\n",motor_a.angle);
+		temp_data = AS5047_read(ANGLEUNC,&error);
+		if(0 == error)
+		{
+			temp_angle = temp_data;
+		}
+		else
+		{
+			
+		}
         HAL_Delay(10);
     }
 	struct_ptr->offset_electrical_angle = temp_angle;
