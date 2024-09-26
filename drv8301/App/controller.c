@@ -42,8 +42,47 @@ void speed_pid(Foc_Controller * struct_ptr)
 	
 	if(struct_ptr->desire_i_q >= 100.0)	struct_ptr->desire_i_q=100.0;
 	else if(struct_ptr->desire_i_q <= -100.0f)   struct_ptr->desire_i_q = -100.0f;
-//	struct_ptr->desire_i_q = 24;
 
+}
+
+typedef struct {
+    float kp;       // Proportional gain
+    float ki;       // Integral gain
+    float kd;       // Derivative gain
+    float err;      // Current error
+    float err_i;    // Integral of error
+    float err_d;    // Derivative of error
+} Position_PID;
+
+Position_PID Pos;
+// Function to initialize the PID controller
+void init_position_pid(Position_PID *pid, float kp, float ki, float kd) {
+    pid->kp = kp;
+    pid->ki = ki;
+    pid->kd = kd;
+    pid->err_i = 0.0f; // Initialize the integral error to zero
+}
+
+// Function to update the position PID controller
+void update_position_pid(Position_PID *pid, Foc_Controller *struct_ptr, float dt) {
+    // Calculate error (difference between target and current position)
+    pid->err = struct_ptr->target_position - struct_ptr->current_position;
+    
+    // Integral term with anti-windup
+    pid->err_i += pid->err * dt;
+    if (pid->err_i > 3000.0f) pid->err_i = 3000.0f;
+    else if (pid->err_i < -3000.0f) pid->err_i = -3000.0f;
+    
+    // Derivative term
+    pid->err_d = (pid->err - struct_ptr->last_position_error) / dt;
+    struct_ptr->last_position_error = pid->err; // Store current error for next iteration
+    
+    // Calculate the desired torque or duty cycle based on PID terms
+    struct_ptr->desire_i_q = pid->kp * pid->err + pid->ki * pid->err_i + pid->kd * pid->err_d;
+    
+    // Saturate the output if it exceeds the limits
+    if (struct_ptr->desire_i_q >= 100.0f) struct_ptr->desire_i_q = 100.0f;
+    else if (struct_ptr->desire_i_q <= -100.0f) struct_ptr->desire_i_q = -100.0f;
 }
 
 
@@ -106,17 +145,6 @@ void HAL_IncTick(void)
 		key_cnt = 0;
 		key_change_flag = 0;
 	}
-
-	
-	
-//	if(1 == key_flag)
-//	{
-//		Controller.target_positon = 180;
-//	}
-//	else
-//	{
-//		Controller.target_positon = 0;
-//	}
 }
 struct V3
 {
@@ -169,6 +197,8 @@ Foc_Controller Controller;
 
 uint8_t speed_tick = 0;
 uint8_t pos_tick = 0;
+uint16_t pos_tick2 = 0;
+uint32_t pos_tick3 = 0;
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
 	
@@ -196,7 +226,33 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 //			position_pid(&Controller);
 			if(key_flag == 1)
 			{
-			speed_pid(&Controller);
+//			speed_pid(&Controller);
+			}
+		}
+		
+		pos_tick3++;
+		if(pos_tick3 <= 60000)
+		{
+			
+			Controller.target_position = 180;
+		}
+		else if(pos_tick3 <= 120000)
+		{
+			Controller.target_position = 90;
+		}
+		else
+		{
+			pos_tick3 = 0;
+		}
+		
+		pos_tick2++;
+		if(pos_tick2 >= 45)
+		{
+			pos_tick2 = 0;
+			if(key_flag == 1)
+			{
+				Controller.current_position = Controller.mechanical_angle;
+				update_position_pid(&Pos,&Controller,0.003333f);
 			}
 		}
 		
@@ -276,6 +332,9 @@ void main_entery(void)
 	Struct_Init(&Controller);
 	Motor_Init();
 	Align_Alectrical_Angle(&Controller);
+//	init_position_pid(&Pos,0.225f,0.012825,0.00185);
+//	init_position_pid(&Pos,0.1f,0.5,0.002);//会卡着
+	init_position_pid(&Pos,0.25f,0.275,0.0045);
 	
 	while(1)
 	{

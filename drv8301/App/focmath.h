@@ -77,6 +77,9 @@ typedef struct
 	float now_speed;
 	float out_speed;
 	
+	float target_position;
+	float current_position;
+	float last_position_error;
 }Foc_Controller;
 
 
