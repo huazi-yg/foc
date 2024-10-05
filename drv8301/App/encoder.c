@@ -115,7 +115,7 @@ void GetMotor_Speed(Foc_Controller *motor)
 
     // 低通滤波器
     motor->now_speed = 0.333333f * temp_speed + 0.699999f * last_speed;
-	DumpTrace();
+
     // 更新状态变量
     last_mangle = mangle;
     last_speed = temp_speed;

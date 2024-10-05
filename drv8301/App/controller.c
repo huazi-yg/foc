@@ -20,6 +20,9 @@
 #include "adc.h"
 #include "stdbool.h"
 #include "align.h"
+#include "hfi.h"
+#include "dataAcq.h"
+
 
 extern Foc_Controller Controller;
 
@@ -209,6 +212,8 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 	}
 	else
 	{
+		HFI_Process();
+		
 		speed_tick++;
 		if(speed_tick >= 30)
 		{
@@ -335,9 +340,13 @@ void main_entery(void)
 //	init_position_pid(&Pos,0.225f,0.012825,0.00185);
 //	init_position_pid(&Pos,0.1f,0.5,0.002);//会卡着
 	init_position_pid(&Pos,0.25f,0.275,0.0045);
+	HFI_Init();
 	
 	while(1)
 	{
 		Read_Angle(&Controller);
+		DumpTrace();
+		HAL_Delay(1);
+		HAL_GPIO_TogglePin(LD2_GPIO_Port,LD2_Pin);
 	}
 }
